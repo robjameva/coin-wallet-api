@@ -10,14 +10,13 @@ const typeDefs = gql`
 		coin_rank: String
 		coin_symbol: String
 		coin_name: String
-		coin_supply: Int
-		coin_maxSupply: Int
-		coin_marketCapUsd: Int
-		coin_volumeUsd24Hr: Int
-		coin_priceUsd: Int
-		coin_changePercent24Hr: Int
-		coin_vwap24Hr: Int
-		owner: User
+		coin_supply: String
+		coin_maxSupply: String
+		coin_marketCapUsd: String
+		coin_volumeUsd24Hr: String
+		coin_priceUsd: String
+		coin_changePercent24Hr: String
+		coin_vwap24Hr: String
 	}
 
 	type User {
@@ -54,7 +53,7 @@ const typeDefs = gql`
 		getUser(userId: ID!): User
 		getAllUsers: [User]
 		getAssets: [Asset]
-
+		getCoinData: [Asset]
 	}
   
 	type Mutation {
@@ -63,6 +62,7 @@ const typeDefs = gql`
 		updateUser(input: UserUpdateInput): User
 		deleteUser(_id: ID!): User
 		deleteAllUsers: User
+		
 
 	}	
 

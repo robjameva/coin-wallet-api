@@ -1,12 +1,13 @@
 require('dotenv').config();
+const fetch = require("node-fetch");
 const { AuthenticationError } = require('apollo-server-express');
 const { User, Wallet, Asset } = require('../models');
 const { signToken } = require('../utils/auth');
 // const accountSid = process.env.TWILIO_ACCOUNT_SID;
 // const authToken = process.env.TWILIO_AUTH_TOKEN;
 // const client = require('twilio')(accountSid, authToken);
-const { format_business_hours } = require('../utils/helpers');
-const mongo = require('mongoose');
+// const { format_business_hours } = require('../utils/helpers');
+// const mongo = require('mongoose');
 
 const resolvers = {
     Query: {
@@ -18,75 +19,105 @@ const resolvers = {
             return User.find({})
                 .select('-__v')
         },
-        // getRestaurant: async (parent, { restaurantId }) => {
-        //     const restaurant = await Restaurant.findOne({ _id: restaurantId })
-        //         .select('-__v')
+        getCoinData: async () => {
+            const result = [];
+            // function to get the raw data
+            const URL = "https://api.coincap.io/v2/assets";
 
-        //     const reservations = await Reservation.aggregate([
-        //         // Stage 1: Filter reservations by restaurant id
-        //         {
-        //             $match: { restaurant: restaurant._id }
-        //         },
-        //         // Stage 2: Group remaining documents by timeslot and calculate total quantity
-        //         {
-        //             $group: { _id: "$time_slot", totalQuantity: { $sum: "$party_size" } }
-        //         }
-        //     ])
+            const response = await fetch(URL);
+            const coinData = await response.json();
 
-        //     const openHour = parseInt(restaurant.business_hours_open)
-        //     const closeHour = parseInt(restaurant.business_hours_close)
-        //     const operatingHours = []
-        //     const fullHours = []
+            coinData.data.forEach(coin => {
+                const obj = {
+                    coin_id: coin.id,
+                    coin_rank: coin.rank,
+                    coin_symbol: coin.symbol,
+                    coin_name: coin.name,
+                    coin_supply: coin.supply,
+                    coin_maxSupply: coin.maxSupply,
+                    coin_marketCapUsd: coin.marketCapUsd,
+                    coin_volumeUsd24Hr: coin.volumeUsd24Hr,
+                    coin_priceUsd: coin.priceUsd,
+                    coin_changePercent24Hr: coin.changePercent24Hr,
+                    coin_vwap24Hr: coin.vwap24Hr
+                }
+                result.push(obj)
+            })
 
-        //     for (let i = openHour; i < closeHour + 1; i++) {
-        //         operatingHours.push(i)
-        //     }
-
-        //     reservations.forEach(hour => {
-        //         if (hour.totalQuantity > restaurant.occupancy) fullHours.push(hour._id);
-        //     })
-
-        //     const unformattedAvailableHours = operatingHours.filter(item => !fullHours.includes(item));
-
-        //     const formattedHours = format_business_hours(unformattedAvailableHours)
-
-        //     return { restaurant, hours: formattedHours }
-        // },
-        // getAllRestaurants: async () => {
-        //     const restaurants = await Restaurant.find({})
-        //         .select('-__v')
-
-        //     return restaurants
-        // },
-        // getRestaurantsByOwner: async (parent, { ownerID }) => {
-        //     const restaurants = await Restaurant.find({ owner: { _id: ownerID } })
-        //         .select('-__v')
-
-        //     return restaurants
-        // },
-        // getReservationsByUser: async (parent, { userID }) => {
-        //     const reservation = await Reservation.find({ user: { _id: userID } })
-        //         .select('-__v')
-        //         .populate('restaurant')
-        //         .populate('user')
-
-        //     return reservation
-        // },
-        // getReservationsByRestaurant: async (parent, { restaurantID }) => {
-        //     return Reservation.find({ restaurant: { _id: restaurantID } })
-        //         .select('-__v')
-        //         .populate('user')
-        // },
-        // getReservationsByOwner: async (parent, { ownerID }) => {
-        //     const reservation = await Reservation.find({})
-        //         .select('-__v')
-        //         .populate('restaurant')
-        //         .populate('user')
-
-        //     return reservation.filter(reservation => reservation.restaurant.owner._id == ownerID)
-        // },
-
+            return result;
+        },
+        // return Asset.find({})
+        //     .select('-__v')
     },
+    // getRestaurant: async (parent, { restaurantId }) => {
+    //     const restaurant = await Restaurant.findOne({ _id: restaurantId })
+    //         .select('-__v')
+
+    //     const reservations = await Reservation.aggregate([
+    //         // Stage 1: Filter reservations by restaurant id
+    //         {
+    //             $match: { restaurant: restaurant._id }
+    //         },
+    //         // Stage 2: Group remaining documents by timeslot and calculate total quantity
+    //         {
+    //             $group: { _id: "$time_slot", totalQuantity: { $sum: "$party_size" } }
+    //         }
+    //     ])
+
+    //     const openHour = parseInt(restaurant.business_hours_open)
+    //     const closeHour = parseInt(restaurant.business_hours_close)
+    //     const operatingHours = []
+    //     const fullHours = []
+
+    //     for (let i = openHour; i < closeHour + 1; i++) {
+    //         operatingHours.push(i)
+    //     }
+
+    //     reservations.forEach(hour => {
+    //         if (hour.totalQuantity > restaurant.occupancy) fullHours.push(hour._id);
+    //     })
+
+    //     const unformattedAvailableHours = operatingHours.filter(item => !fullHours.includes(item));
+
+    //     const formattedHours = format_business_hours(unformattedAvailableHours)
+
+    //     return { restaurant, hours: formattedHours }
+    // },
+    // getAllRestaurants: async () => {
+    //     const restaurants = await Restaurant.find({})
+    //         .select('-__v')
+
+    //     return restaurants
+    // },
+    // getRestaurantsByOwner: async (parent, { ownerID }) => {
+    //     const restaurants = await Restaurant.find({ owner: { _id: ownerID } })
+    //         .select('-__v')
+
+    //     return restaurants
+    // },
+    // getReservationsByUser: async (parent, { userID }) => {
+    //     const reservation = await Reservation.find({ user: { _id: userID } })
+    //         .select('-__v')
+    //         .populate('restaurant')
+    //         .populate('user')
+
+    //     return reservation
+    // },
+    // getReservationsByRestaurant: async (parent, { restaurantID }) => {
+    //     return Reservation.find({ restaurant: { _id: restaurantID } })
+    //         .select('-__v')
+    //         .populate('user')
+    // },
+    // getReservationsByOwner: async (parent, { ownerID }) => {
+    //     const reservation = await Reservation.find({})
+    //         .select('-__v')
+    //         .populate('restaurant')
+    //         .populate('user')
+
+    //     return reservation.filter(reservation => reservation.restaurant.owner._id == ownerID)
+    // },
+
+
     Mutation: {
         createUser: async (parent, { input }) => {
             const user = await User.create(input);
