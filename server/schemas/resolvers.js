@@ -14,6 +14,10 @@ const resolvers = {
             return User.findOne({ _id: userId })
                 .select('-__v')
         },
+        getAllUsers: async () => {
+            return User.find({})
+                .select('-__v')
+        },
         // getRestaurant: async (parent, { restaurantId }) => {
         //     const restaurant = await Restaurant.findOne({ _id: restaurantId })
         //         .select('-__v')

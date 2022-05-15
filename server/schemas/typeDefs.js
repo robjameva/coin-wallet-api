@@ -4,12 +4,20 @@ const { gql } = require('apollo-server-express');
 // create our typeDefs
 const typeDefs = gql`
 
-	type Reservation {
+	type Asset {
 		_id: ID!
-		party_size: Int
-		time_slot: Int
-		user: User
-		restaurant: Restaurant
+		coin_id: String
+		coin_rank: String
+		coin_symbol: String
+		coin_name: String
+		coin_supply: Int
+		coin_maxSupply: Int
+		coin_marketCapUsd: Int
+		coin_volumeUsd24Hr: Int
+		coin_priceUsd: Int
+		coin_changePercent24Hr: Int
+		coin_vwap24Hr: Int
+		owner: User
 	}
 
 	type User {
@@ -20,17 +28,10 @@ const typeDefs = gql`
 		email: String
 	}
 
-	type Restaurant {
+	type Wallet {
 		_id: ID
-		occupancy: Int
-		business_name: String
-		business_address: String
-		business_phone: String
-		business_hours_open: Int!
-		business_hours_close: Int!
-		business_website: String
-		business_image: String
 		owner: User
+		coins: [Asset]
 	}
 
 	input UserInput {
@@ -51,6 +52,8 @@ const typeDefs = gql`
 
 	type Query {
 		getUser(userId: ID!): User
+		getAllUsers: [User]
+		getAssets: [Asset]
 
 	}
   
