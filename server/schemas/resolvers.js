@@ -46,8 +46,6 @@ const resolvers = {
 
             return result;
         },
-        // return Asset.find({})
-        //     .select('-__v')
     },
     // getRestaurant: async (parent, { restaurantId }) => {
     //     const restaurant = await Restaurant.findOne({ _id: restaurantId })

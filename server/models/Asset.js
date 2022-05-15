@@ -9,7 +9,7 @@ const assetSchema = new Schema(
         },
         coin_rank: {
             type: String,
-            required: Number
+            required: String
         },
         coin_symbol: {
             type: String,
@@ -22,31 +22,31 @@ const assetSchema = new Schema(
             unique: true,
         },
         coin_supply: {
-            type: Number,
+            type: String,
             required: true,
         },
         coin_maxSupply: {
-            type: Number,
+            type: String,
             required: true,
         },
         coin_marketCapUsd: {
-            type: Number,
+            type: String,
             required: true,
         },
         coin_volumeUsd24Hr: {
-            type: Number,
+            type: String,
             required: true,
         },
         coin_priceUsd: {
-            type: Number,
+            type: String,
             required: true,
         },
         coin_changePercent24Hr: {
-            type: Number,
+            type: String,
             required: true,
         },
         coin_vwap24Hr: {
-            type: Number,
+            type: String,
             required: true,
         },
     }
