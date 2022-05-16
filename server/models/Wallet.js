@@ -1,14 +1,9 @@
 const { Schema, model } = require('mongoose');
+const { assetSchema } = require('./Asset');
 
 const walletSchema = new Schema(
     {
-        wallet_id: {
-            type: Schema.Types.ObjectId
-        },
-        assets: {
-            type: Schema.Types.ObjectId,
-            ref: 'Asset'
-        },
+        coins: [assetSchema],
         owner: {
             type: Schema.Types.ObjectId,
             ref: 'User'

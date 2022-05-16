@@ -56,7 +56,7 @@ const typeDefs = gql`
 		getCoinData: [Asset]
 		getIndividualCoinData(coinID: String!): Asset
 		getUserWallet(userId: ID!): Wallet
-		getAllWallet: [Wallet]
+		getAllWallets: [Wallet]
 	}
   
 	type Mutation {
@@ -65,11 +65,7 @@ const typeDefs = gql`
 		updateUser(input: UserUpdateInput): User
 		deleteUser(_id: ID!): User
 		deleteAllUsers: User
-
-
-
-
-		saveCoin(walletID: ID!, coinID: String!): Asset
+		saveCoin(walletID: ID!, coinID: String!): Wallet
 
 	}	
 

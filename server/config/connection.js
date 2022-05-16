@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/coin-wallet-api', {
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/coin-wallet-api-v2', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,

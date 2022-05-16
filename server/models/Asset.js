@@ -1,53 +1,43 @@
-const { Schema, model } = require('mongoose');
+const { Schema, model, Types } = require('mongoose');
 
 const assetSchema = new Schema(
     {
+        _id: {
+            type: Schema.Types.ObjectId,
+            default: () => new Types.ObjectId()
+        },
         coin_id: {
-            type: String,
-            required: true,
-            unique: true
+            type: String
         },
         coin_rank: {
-            type: String,
-            required: String
+            type: String
         },
         coin_symbol: {
-            type: String,
-            required: true,
-            unique: true,
+            type: String
         },
         coin_name: {
-            type: String,
-            required: true,
-            unique: true,
+            type: String
         },
         coin_supply: {
-            type: String,
-            required: true,
+            type: String
         },
         coin_maxSupply: {
-            type: String,
-            required: true,
+            type: String
         },
         coin_marketCapUsd: {
-            type: String,
-            required: true,
+            type: String
         },
         coin_volumeUsd24Hr: {
-            type: String,
-            required: true,
+            type: String
         },
         coin_priceUsd: {
-            type: String,
-            required: true,
+            type: String
         },
         coin_changePercent24Hr: {
-            type: String,
-            required: true,
+            type: String
         },
         coin_vwap24Hr: {
-            type: String,
-            required: true,
+            type: String
         },
     }
 );
@@ -55,4 +45,4 @@ const assetSchema = new Schema(
 
 const Asset = model('Asset', assetSchema);
 
-module.exports = Asset;
+module.exports = { Asset, assetSchema };
