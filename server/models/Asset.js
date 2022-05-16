@@ -2,10 +2,6 @@ const { Schema, model, Types } = require('mongoose');
 
 const assetSchema = new Schema(
     {
-        _id: {
-            type: Schema.Types.ObjectId,
-            default: () => new Types.ObjectId()
-        },
         coin_id: {
             type: String
         },

@@ -66,6 +66,7 @@ const typeDefs = gql`
 		deleteUser(_id: ID!): User
 		deleteAllUsers: User
 		saveCoin(walletID: ID!, coinID: String!): Wallet
+		deleteCoin(walletID: ID!, coinID: String!): Wallet
 
 	}	
 

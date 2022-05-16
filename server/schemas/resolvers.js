@@ -212,6 +212,15 @@ const resolvers = {
 
             return updatedWallet;
         },
+        deleteCoin: async (parent, { walletID, coinID }) => {
+            const updatedWallet = await Wallet.findOneAndUpdate(
+                { _id: walletID },
+                { $pull: { coins: { _id: coinID } } },
+                { new: true }
+            )
+
+            return updatedWallet;
+        },
         // createRestaurant: async (parent, { input }) => {
         //     const restaurant = await Restaurant.create(input);
 
