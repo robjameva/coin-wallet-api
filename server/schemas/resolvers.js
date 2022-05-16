@@ -46,6 +46,31 @@ const resolvers = {
 
             return result;
         },
+        getIndividualCoinData: async (parent, { coinID }) => {
+            // function to get the raw data
+            const URL = "https://api.coincap.io/v2/assets";
+
+            const response = await fetch(URL);
+            const coinData = await response.json();
+
+            const singleCoin = coinData.data.filter(coin => coin.id === coinID)[0];
+
+            const result = {
+                coin_id: singleCoin.id,
+                coin_rank: singleCoin.rank,
+                coin_symbol: singleCoin.symbol,
+                coin_name: singleCoin.name,
+                coin_supply: singleCoin.supply,
+                coin_maxSupply: singleCoin.maxSupply,
+                coin_marketCapUsd: singleCoin.marketCapUsd,
+                coin_volumeUsd24Hr: singleCoin.volumeUsd24Hr,
+                coin_priceUsd: singleCoin.priceUsd,
+                coin_changePercent24Hr: singleCoin.changePercent24Hr,
+                coin_vwap24Hr: singleCoin.vwap24Hr
+            }
+
+            return result;
+        },
     },
     // getRestaurant: async (parent, { restaurantId }) => {
     //     const restaurant = await Restaurant.findOne({ _id: restaurantId })

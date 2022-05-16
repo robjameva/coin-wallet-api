@@ -54,6 +54,7 @@ const typeDefs = gql`
 		getAllUsers: [User]
 		getAssets: [Asset]
 		getCoinData: [Asset]
+		getIndividualCoinData(coinID: String!): Asset
 	}
   
 	type Mutation {
