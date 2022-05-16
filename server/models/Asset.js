@@ -35,6 +35,9 @@ const assetSchema = new Schema(
         coin_vwap24Hr: {
             type: String
         },
+        quantity: {
+            type: Number
+        },
     }
 );
 

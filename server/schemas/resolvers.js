@@ -81,75 +81,6 @@ const resolvers = {
             return result;
         },
     },
-    // getRestaurant: async (parent, { restaurantId }) => {
-    //     const restaurant = await Restaurant.findOne({ _id: restaurantId })
-    //         .select('-__v')
-
-    //     const reservations = await Reservation.aggregate([
-    //         // Stage 1: Filter reservations by restaurant id
-    //         {
-    //             $match: { restaurant: restaurant._id }
-    //         },
-    //         // Stage 2: Group remaining documents by timeslot and calculate total quantity
-    //         {
-    //             $group: { _id: "$time_slot", totalQuantity: { $sum: "$party_size" } }
-    //         }
-    //     ])
-
-    //     const openHour = parseInt(restaurant.business_hours_open)
-    //     const closeHour = parseInt(restaurant.business_hours_close)
-    //     const operatingHours = []
-    //     const fullHours = []
-
-    //     for (let i = openHour; i < closeHour + 1; i++) {
-    //         operatingHours.push(i)
-    //     }
-
-    //     reservations.forEach(hour => {
-    //         if (hour.totalQuantity > restaurant.occupancy) fullHours.push(hour._id);
-    //     })
-
-    //     const unformattedAvailableHours = operatingHours.filter(item => !fullHours.includes(item));
-
-    //     const formattedHours = format_business_hours(unformattedAvailableHours)
-
-    //     return { restaurant, hours: formattedHours }
-    // },
-    // getAllRestaurants: async () => {
-    //     const restaurants = await Restaurant.find({})
-    //         .select('-__v')
-
-    //     return restaurants
-    // },
-    // getRestaurantsByOwner: async (parent, { ownerID }) => {
-    //     const restaurants = await Restaurant.find({ owner: { _id: ownerID } })
-    //         .select('-__v')
-
-    //     return restaurants
-    // },
-    // getReservationsByUser: async (parent, { userID }) => {
-    //     const reservation = await Reservation.find({ user: { _id: userID } })
-    //         .select('-__v')
-    //         .populate('restaurant')
-    //         .populate('user')
-
-    //     return reservation
-    // },
-    // getReservationsByRestaurant: async (parent, { restaurantID }) => {
-    //     return Reservation.find({ restaurant: { _id: restaurantID } })
-    //         .select('-__v')
-    //         .populate('user')
-    // },
-    // getReservationsByOwner: async (parent, { ownerID }) => {
-    //     const reservation = await Reservation.find({})
-    //         .select('-__v')
-    //         .populate('restaurant')
-    //         .populate('user')
-
-    //     return reservation.filter(reservation => reservation.restaurant.owner._id == ownerID)
-    // },
-
-
     Mutation: {
         createUser: async (parent, { input }) => {
             const user = await User.create(input);
@@ -176,7 +107,7 @@ const resolvers = {
 
             return { token, user };
         },
-        saveCoin: async (parent, { walletID, coinID }) => {
+        saveCoin: async (parent, { walletID, coinID, quantity }) => {
             const URL = "https://api.coincap.io/v2/assets";
 
             const response = await fetch(URL);
@@ -195,7 +126,8 @@ const resolvers = {
                 coin_volumeUsd24Hr: singleCoin.volumeUsd24Hr,
                 coin_priceUsd: singleCoin.priceUsd,
                 coin_changePercent24Hr: singleCoin.changePercent24Hr,
-                coin_vwap24Hr: singleCoin.vwap24Hr
+                coin_vwap24Hr: singleCoin.vwap24Hr,
+                quantity: quantity
             }
 
             const newCoin = await Asset.create(result);
@@ -208,115 +140,32 @@ const resolvers = {
                 { new: true, runValidators: true }
             ).populate('owner').populate('coins');
 
-
-
             return updatedWallet;
         },
-        deleteCoin: async (parent, { walletID, coinID }) => {
+        deleteCoin: async (parent, { walletID, coinID, quantityToSubtract }) => {
+            const currentWallet = await Wallet.find({ _id: walletID }).populate('coins');
+            const coin = currentWallet[0].coins.filter(coin => coin._id == coinID);
+            const currentCoinQuantity = coin[0].quantity;
+            const newCoinQuantity = currentCoinQuantity - quantityToSubtract;
+
+            if (newCoinQuantity <= 0) {
+                const updatedWallet = await Wallet.findOneAndUpdate(
+                    { _id: walletID },
+                    { $pull: { coins: { _id: coinID } } },
+                    { new: true }
+                )
+                return updatedWallet;
+            }
+
             const updatedWallet = await Wallet.findOneAndUpdate(
-                { _id: walletID },
-                { $pull: { coins: { _id: coinID } } },
+                { _id: walletID, "coins._id": coinID },
+                { $set: { "coins.$.quantity": newCoinQuantity } },
                 { new: true }
             )
-
             return updatedWallet;
+
+
         },
-        // createRestaurant: async (parent, { input }) => {
-        //     const restaurant = await Restaurant.create(input);
-
-        //     return restaurant;
-        // },
-        // createReservation: async (parent, { input }) => {
-        //     const reservation = await Reservation.create(input);
-        //     const newReservation = await Reservation.find({ _id: reservation._id }).populate('user').populate('restaurant');
-
-        //     const businessName = newReservation[0].restaurant.business_name;
-        //     const party = newReservation[0].party_size;
-        //     const timeSlot = format_business_hours([newReservation[0].time_slot])[0];
-        //     const firstName = newReservation[0].user.first_name;
-        //     const phoneNumber = newReservation[0].user.phone_number;
-
-        //     client.messages
-        //         .create({
-        //             body:
-        //                 `Hello ${firstName}, your table is confirmed at ${businessName} for ${party} people at ${timeSlot}.`,
-        //             from: '+17853776055',
-        //             to: `+1${phoneNumber}`
-        //         })
-
-        //     return reservation;
-        // },
-        // updateReservation: async (parent, { input }) => {
-        //     const updatedReservation = await Reservation.findOneAndUpdate(
-        //         { _id: input.reservationID },
-        //         input,
-        //         { new: true, runValidators: true }
-        //     ).populate('user').populate('restaurant')
-
-        //     const businessName = updatedReservation.restaurant.business_name;
-        //     const party = updatedReservation.party_size;
-        //     const timeSlot = format_business_hours([updatedReservation.time_slot])[0];
-        //     const firstName = updatedReservation.user.first_name;
-        //     const phoneNumber = updatedReservation.user.phone_number;
-
-        //     client.messages
-        //         .create({
-        //             body:
-        //                 `Hello ${firstName}, your reservation has been updated at ${businessName} for ${party} people at ${timeSlot}.`,
-        //             from: '+17853776055',
-        //             to: `+1${phoneNumber}`
-        //         })
-
-        //     return updatedReservation
-        // },
-        // updateRestaurant: async (parent, { input }) => {
-        //     const updatedRestaurant = await Restaurant.findOneAndUpdate(
-        //         { _id: input._id },
-        //         input,
-        //         { new: true, runValidators: true }
-        //     );
-
-        //     return updatedRestaurant
-        // },
-        // updateUser: async (parent, { input }) => {
-        //     const updatedUser = await User.findOneAndUpdate(
-        //         { _id: input._id },
-        //         input,
-        //         { new: true, runValidators: true }
-        //     );
-
-        //     return updatedUser;
-        // },
-        // deleteUser: async (parent, { _id }) => {
-        //     const user = await User.findOneAndDelete({ _id })
-
-        //     return user;
-        // },
-        // deleteReservation: async (parent, { _id }) => {
-        //     const reservation = await Reservation.findOneAndDelete({ _id })
-
-        //     return reservation;
-        // },
-        // deleteAllReservations: async () => {
-        //     const reservation = await Reservation.deleteMany({})
-
-        //     return reservation;
-        // },
-        // deleteAllRestaurants: async () => {
-        //     const restaurant = await Restaurant.deleteMany({})
-
-        //     return restaurant;
-        // },
-        // deleteAllUsers: async () => {
-        //     const user = await User.deleteMany({})
-
-        //     return user;
-        // },
-        // deleteRestaurant: async (parent, { _id }) => {
-        //     const restaurant = await Restaurant.findOneAndDelete({ _id })
-
-        //     return restaurant;
-        // },
     }
 };
 

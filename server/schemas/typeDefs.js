@@ -17,6 +17,7 @@ const typeDefs = gql`
 		coin_priceUsd: String
 		coin_changePercent24Hr: String
 		coin_vwap24Hr: String
+		quantity: Int
 	}
 
 	type User {
@@ -65,8 +66,8 @@ const typeDefs = gql`
 		updateUser(input: UserUpdateInput): User
 		deleteUser(_id: ID!): User
 		deleteAllUsers: User
-		saveCoin(walletID: ID!, coinID: String!): Wallet
-		deleteCoin(walletID: ID!, coinID: String!): Wallet
+		saveCoin(walletID: ID!, coinID: String!, quantity: Int!): Wallet
+		deleteCoin(walletID: ID!, coinID: String!, quantityToSubtract: Int!): Wallet
 
 	}	
 
