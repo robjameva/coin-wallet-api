@@ -55,21 +55,33 @@ const typeDefs = gql`
 		getAssets: [Asset]
 		getCoinData: [Asset]
 		getIndividualCoinData(coinID: String!): Asset
+		getUserWallet(userId: ID!): Wallet
+		getAllWallet: [Wallet]
 	}
   
 	type Mutation {
 		login(email: String!, password: String!): Auth
-		createUser(input: UserInput): Auth
+		createUser(input: UserInput): NewUser
 		updateUser(input: UserUpdateInput): User
 		deleteUser(_id: ID!): User
 		deleteAllUsers: User
-		
+
+
+
+
+		saveCoin(walletID: ID!, coinID: String!): Asset
 
 	}	
 
 	type Auth {
 		token: ID!
 		user: User
+	}
+
+	type NewUser {
+		token: ID!
+		user: User
+		wallet: Wallet
 	}
 `;
 

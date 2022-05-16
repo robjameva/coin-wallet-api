@@ -2,11 +2,14 @@ const { Schema, model } = require('mongoose');
 
 const walletSchema = new Schema(
     {
+        wallet_id: {
+            type: Schema.Types.ObjectId
+        },
         assets: {
             type: Schema.Types.ObjectId,
             ref: 'Asset'
         },
-        user: {
+        owner: {
             type: Schema.Types.ObjectId,
             ref: 'User'
         }
@@ -15,4 +18,4 @@ const walletSchema = new Schema(
 
 const Wallet = model('Wallet', walletSchema);
 
-module.exports = { Wallet, walletSchema };
+module.exports = Wallet;

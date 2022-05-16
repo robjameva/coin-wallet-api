@@ -15,6 +15,14 @@ const resolvers = {
             return User.findOne({ _id: userId })
                 .select('-__v')
         },
+        getUserWallet: async (parent, { userId }) => {
+            return Wallet.findOne({ owner: userId }).populate('owner')
+                .select('-__v')
+        },
+        getAllWallet: async () => {
+            return Wallet.find({})
+                .select('-__v')
+        },
         getAllUsers: async () => {
             return User.find({})
                 .select('-__v')
@@ -145,8 +153,10 @@ const resolvers = {
         createUser: async (parent, { input }) => {
             const user = await User.create(input);
             const token = signToken(user);
+            const wallet = await Wallet.create({ owner: user._id });
 
-            return { token, user };
+            console.log(wallet);
+            return { token, user, wallet };
         },
         login: async (parent, { email, password }) => {
             const user = await User.findOne({ email });
