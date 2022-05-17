@@ -108,6 +108,49 @@ const resolvers = {
 
             return { coin: coinName, quantity: totalQuantity, dollarCostAveragePrice: formattedUSDAveragePrice, valueUSD: formattedUSDValue }
         },
+        aggregateByWallet: async (parent, { userId }) => {
+            const wallet = await Wallet.findOne({ owner: userId })
+                .populate('coins')
+
+            const coinsArr = extract_coin_data(wallet.coins)
+
+            // Group by coin as key to the coinsArr array
+            const groupByCoin = group_assets(coinsArr, 'coin');
+
+            const listOfCoins = [];
+
+            coinsArr.forEach(coin => {
+                if (listOfCoins.includes(coin.coin)) return
+                listOfCoins.push(coin.coin)
+            })
+
+
+            const result = [];
+
+            for (let i = 0; i < listOfCoins.length; i++) {
+                const currentCoin = listOfCoins[i]
+                const individualCoinGroupedByName = groupByCoin[`${currentCoin}`]
+
+                const totalQuantity = individualCoinGroupedByName.reduce((sum, currentValue) => {
+                    return sum + currentValue.quantity;
+                }, 0);
+
+                let runningTotal = 0;
+
+                individualCoinGroupedByName.forEach(coin => runningTotal += (coin.quantity * parseFloat(coin.price)));
+
+                const weightedAveragePrice = (runningTotal / totalQuantity);
+
+                let value = totalQuantity * weightedAveragePrice;
+
+                const formattedUSDValue = currency_formatter(value);
+                const formattedUSDAveragePrice = currency_formatter(weightedAveragePrice);
+
+                result.push({ coin: currentCoin, quantity: totalQuantity, dollarCostAveragePrice: formattedUSDAveragePrice, valueUSD: formattedUSDValue })
+            }
+
+            return result;
+        },
     },
     Mutation: {
         createUser: async (parent, { input }) => {
