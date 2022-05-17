@@ -126,11 +126,11 @@ const resolvers = {
 
             subTotal.forEach(coin => runningTotal += (coin.quantity * parseFloat(coin.price)));
 
-            const averagePrice = (runningTotal / totalQuantity);
+            const weightedAveragePrice = (runningTotal / totalQuantity);
 
 
 
-            return { coin: coinName, quantity: totalQuantity, averagePrice: averagePrice }
+            return { coin: coinName, quantity: totalQuantity, averagePrice: weightedAveragePrice }
         },
     },
     Mutation: {
