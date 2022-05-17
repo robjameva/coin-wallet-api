@@ -86,7 +86,7 @@ const resolvers = {
                 .populate('coins')
                 .select('-__v')
 
-            const result = []
+            const coinsArr = []
 
             wallet.coins.forEach(coin => {
                 const obj = {}
@@ -97,9 +97,10 @@ const resolvers = {
                 obj.coin = coinName;
                 obj.quantity = quantity;
                 obj.price = price;
-                result.push(obj);
+                coinsArr.push(obj);
             })
 
+            // CREDIT: https://learnwithparam.com/blog/how-to-group-by-array-of-objects-using-a-key/
             // Accepts the array and key
             const groupBy = (array, key) => {
                 // Return the end result
@@ -113,8 +114,8 @@ const resolvers = {
                 }, {}); // empty object is the initial value for result object
             };
 
-            // Group by coin as key to the result array
-            const groupByCoin = groupBy(result, 'coin');
+            // Group by coin as key to the coinsArr array
+            const groupByCoin = groupBy(coinsArr, 'coin');
 
             const subTotal = groupByCoin[`${coinName}`];
 
