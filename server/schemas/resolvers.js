@@ -6,7 +6,7 @@ const { signToken } = require('../utils/auth');
 // const accountSid = process.env.TWILIO_ACCOUNT_SID;
 // const authToken = process.env.TWILIO_AUTH_TOKEN;
 // const client = require('twilio')(accountSid, authToken);
-// const { format_business_hours } = require('../utils/helpers');
+const { group_assets, extract_coin_data, currency_formatter } = require('../utils/helpers');
 // const mongo = require('mongoose');
 
 const resolvers = {
@@ -82,63 +82,31 @@ const resolvers = {
         },
         aggregateByCoin: async (parent, { userId, coinName }) => {
             const wallet = await Wallet.findOne({ owner: userId })
-                .populate('owner')
                 .populate('coins')
-                .select('-__v')
 
-            const coinsArr = []
-
-            wallet.coins.forEach(coin => {
-                const obj = {}
-                const coinName = coin.coin_id;
-                const quantity = coin.quantity;
-                const price = coin.coin_priceUsd;
-
-                obj.coin = coinName;
-                obj.quantity = quantity;
-                obj.price = price;
-                coinsArr.push(obj);
-            })
-
-            // CREDIT: https://learnwithparam.com/blog/how-to-group-by-array-of-objects-using-a-key/
-            // Accepts the array and key
-            const groupBy = (array, key) => {
-                // Return the end result
-                return array.reduce((result, currentValue) => {
-                    // If an array already present for key, push it to the array. Else create an array and push the object
-                    (result[currentValue[key]] = result[currentValue[key]] || []).push(
-                        currentValue
-                    );
-                    // Return the current iteration `result` value, this will be taken as next iteration `result` value and accumulate
-                    return result;
-                }, {}); // empty object is the initial value for result object
-            };
+            const coinsArr = extract_coin_data(wallet.coins)
 
             // Group by coin as key to the coinsArr array
-            const groupByCoin = groupBy(coinsArr, 'coin');
+            const groupByCoin = group_assets(coinsArr, 'coin');
 
-            const subTotal = groupByCoin[`${coinName}`];
+            const singleCoinArr = groupByCoin[`${coinName}`];
 
-            const totalQuantity = subTotal.reduce((sum, currentValue) => {
+            const totalQuantity = singleCoinArr.reduce((sum, currentValue) => {
                 return sum + currentValue.quantity;
             }, 0);
 
             let runningTotal = 0;
 
-            subTotal.forEach(coin => runningTotal += (coin.quantity * parseFloat(coin.price)));
+            singleCoinArr.forEach(coin => runningTotal += (coin.quantity * parseFloat(coin.price)));
 
             const weightedAveragePrice = (runningTotal / totalQuantity);
 
             let value = totalQuantity * weightedAveragePrice;
 
-            var formatter = new Intl.NumberFormat('en-US', {
-                style: 'currency',
-                currency: 'USD',
-            });
+            const formattedUSDValue = currency_formatter(value);
+            const formattedUSDAveragePrice = currency_formatter(weightedAveragePrice);
 
-            const formattedUSDValue = formatter.format(value);
-
-            return { coin: coinName, quantity: totalQuantity, averagePrice: weightedAveragePrice, valueUSD: formattedUSDValue }
+            return { coin: coinName, quantity: totalQuantity, dollarCostAveragePrice: formattedUSDAveragePrice, valueUSD: formattedUSDValue }
         },
     },
     Mutation: {

@@ -4,52 +4,41 @@ module.exports = {
             date
         ).getFullYear()}`;
     },
-    format_plural: (word, amount) => {
-        if (amount !== 1) {
-            return `${word}s`;
-        }
-
-        return word;
+    // CREDIT: https://learnwithparam.com/blog/how-to-group-by-array-of-objects-using-a-key/
+    // Accepts the array and key
+    group_assets: (array, key) => {
+        // Return the end result
+        return array.reduce((result, currentValue) => {
+            // If an array already present for key, push it to the array. Else create an array and push the object
+            (result[currentValue[key]] = result[currentValue[key]] || []).push(
+                currentValue
+            );
+            // Return the current iteration `result` value, this will be taken as next iteration `result` value and accumulate
+            return result;
+        }, {}); // empty object is the initial value for result object
     },
-    format_url: url => {
-        return url
-            .replace('http://', '')
-            .replace('https://', '')
-            .replace('www.', '')
-            .split('/')[0]
-            .split('?')[0];
-    },
-    format_business_hours: hours => {
-        return hours.map(hour => {
-            switch (hour) {
-                case 12:
-                    return '12:00 pm'
-                case 13:
-                    return '1:00 pm'
-                case 14:
-                    return '2:00 pm'
-                case 15:
-                    return '3:00 pm'
-                case 16:
-                    return '4:00 pm'
-                case 17:
-                    return '5:00 pm'
-                case 18:
-                    return '6:00 pm'
-                case 19:
-                    return '7:00 pm'
-                case 20:
-                    return '8:00 pm'
-                case 21:
-                    return '9:00 pm'
-                case 22:
-                    return '10:00 pm'
-                case 23:
-                    return '11:00 pm'
-                default:
-                    return `${hour}:00 am`
-            }
+    extract_coin_data: (coinData) => {
+        const coinsArr = []
 
+        coinData.forEach(coin => {
+            const obj = {}
+            const coinName = coin.coin_id;
+            const quantity = coin.quantity;
+            const price = coin.coin_priceUsd;
+
+            obj.coin = coinName;
+            obj.quantity = quantity;
+            obj.price = price;
+            coinsArr.push(obj);
         })
-    }
+        return coinsArr;
+    },
+    currency_formatter: (value) => {
+        const formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+        });
+
+        return formatter.format(value)
+    },
 }

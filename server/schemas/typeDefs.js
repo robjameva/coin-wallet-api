@@ -59,6 +59,7 @@ const typeDefs = gql`
 		getUserWallet(userId: ID!): Wallet
 		getAllWallets: [Wallet]
 		aggregateByCoin(userId: ID!, coinName: String!): Aggregate
+		aggregateByWallet(userId: ID!): [Aggregate]
 	}
   
 	type Mutation {
@@ -80,7 +81,7 @@ const typeDefs = gql`
 	type Aggregate {
 		coin: String
 		quantity: Int
-		averagePrice: Float
+		dollarCostAveragePrice: String
 		valueUSD: String
 	}
 
