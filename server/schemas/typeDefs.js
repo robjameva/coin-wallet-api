@@ -81,6 +81,7 @@ const typeDefs = gql`
 		coin: String
 		quantity: Int
 		averagePrice: Float
+		valueUSD: String
 	}
 
 	type Group {

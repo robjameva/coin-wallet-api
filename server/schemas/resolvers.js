@@ -128,9 +128,16 @@ const resolvers = {
 
             const weightedAveragePrice = (runningTotal / totalQuantity);
 
+            let value = totalQuantity * weightedAveragePrice;
 
+            var formatter = new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+            });
 
-            return { coin: coinName, quantity: totalQuantity, averagePrice: weightedAveragePrice }
+            const formattedUSDValue = formatter.format(value);
+
+            return { coin: coinName, quantity: totalQuantity, averagePrice: weightedAveragePrice, valueUSD: formattedUSDValue }
         },
     },
     Mutation: {
