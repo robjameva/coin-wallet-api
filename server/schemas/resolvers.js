@@ -122,9 +122,12 @@ const resolvers = {
                 return sum + currentValue.quantity;
             }, 0);
 
-            const averagePrice = subTotal.reduce((sum, currentValue) => {
-                return sum + parseInt(currentValue.price);
-            }, 0) / subTotal.length;
+            let runningTotal = 0;
+
+            subTotal.forEach(coin => runningTotal += (coin.quantity * parseFloat(coin.price)));
+
+            const averagePrice = (runningTotal / totalQuantity);
+
 
 
             return { coin: coinName, quantity: totalQuantity, averagePrice: averagePrice }

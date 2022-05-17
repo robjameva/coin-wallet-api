@@ -80,7 +80,7 @@ const typeDefs = gql`
 	type Aggregate {
 		coin: String
 		quantity: Int
-		averagePrice: Int
+		averagePrice: Float
 	}
 
 	type Group {
