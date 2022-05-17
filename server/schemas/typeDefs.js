@@ -58,6 +58,7 @@ const typeDefs = gql`
 		getIndividualCoinData(coinID: String!): Asset
 		getUserWallet(userId: ID!): Wallet
 		getAllWallets: [Wallet]
+		aggregateByCoin(userId: ID!, coinName: String!): Aggregate
 	}
   
 	type Mutation {
@@ -67,13 +68,25 @@ const typeDefs = gql`
 		deleteUser(_id: ID!): User
 		deleteAllUsers: User
 		saveCoin(walletID: ID!, coinID: String!, quantity: Int!): Wallet
-		deleteCoin(walletID: ID!, coinID: String!, quantityToSubtract: Int!): Wallet
+		deleteCoin(walletID: ID!, coinDocumentID: String!, quantityToSubtract: Int!): Wallet
 
 	}	
 
 	type Auth {
 		token: ID!
 		user: User
+	}
+
+	type Aggregate {
+		coin: String
+		quantity: Int
+		averagePrice: Int
+	}
+
+	type Group {
+		coin: String
+		quantity: Int
+		price: String
 	}
 
 	type NewUser {

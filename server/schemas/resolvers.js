@@ -80,6 +80,55 @@ const resolvers = {
 
             return result;
         },
+        aggregateByCoin: async (parent, { userId, coinName }) => {
+            const wallet = await Wallet.findOne({ owner: userId })
+                .populate('owner')
+                .populate('coins')
+                .select('-__v')
+
+            const result = []
+
+            wallet.coins.forEach(coin => {
+                const obj = {}
+                const coinName = coin.coin_id;
+                const quantity = coin.quantity;
+                const price = coin.coin_priceUsd;
+
+                obj.coin = coinName;
+                obj.quantity = quantity;
+                obj.price = price;
+                result.push(obj);
+            })
+
+            // Accepts the array and key
+            const groupBy = (array, key) => {
+                // Return the end result
+                return array.reduce((result, currentValue) => {
+                    // If an array already present for key, push it to the array. Else create an array and push the object
+                    (result[currentValue[key]] = result[currentValue[key]] || []).push(
+                        currentValue
+                    );
+                    // Return the current iteration `result` value, this will be taken as next iteration `result` value and accumulate
+                    return result;
+                }, {}); // empty object is the initial value for result object
+            };
+
+            // Group by coin as key to the result array
+            const groupByCoin = groupBy(result, 'coin');
+
+            const subTotal = groupByCoin[`${coinName}`];
+
+            const totalQuantity = subTotal.reduce((sum, currentValue) => {
+                return sum + currentValue.quantity;
+            }, 0);
+
+            const averagePrice = subTotal.reduce((sum, currentValue) => {
+                return sum + parseInt(currentValue.price);
+            }, 0) / subTotal.length;
+
+
+            return { coin: coinName, quantity: totalQuantity, averagePrice: averagePrice }
+        },
     },
     Mutation: {
         createUser: async (parent, { input }) => {
@@ -132,7 +181,6 @@ const resolvers = {
 
             const newCoin = await Asset.create(result);
 
-            console.log(newCoin)
 
             const updatedWallet = await Wallet.findOneAndUpdate(
                 { _id: walletID },
@@ -142,29 +190,29 @@ const resolvers = {
 
             return updatedWallet;
         },
-        deleteCoin: async (parent, { walletID, coinID, quantityToSubtract }) => {
+        deleteCoin: async (parent, { walletID, coinDocumentID, quantityToSubtract }) => {
             const currentWallet = await Wallet.find({ _id: walletID }).populate('coins');
-            const coin = currentWallet[0].coins.filter(coin => coin._id == coinID);
+            const coin = currentWallet[0].coins.filter(coin => coin._id == coinDocumentID);
             const currentCoinQuantity = coin[0].quantity;
             const newCoinQuantity = currentCoinQuantity - quantityToSubtract;
 
-            if (newCoinQuantity <= 0) {
+            // If the new qty is less than 0 remove it from the list
+            if (newCoinQuantity <= 0 || currentCoinQuantity == null) {
                 const updatedWallet = await Wallet.findOneAndUpdate(
                     { _id: walletID },
-                    { $pull: { coins: { _id: coinID } } },
+                    { $pull: { coins: { _id: coinDocumentID } } },
                     { new: true }
                 )
                 return updatedWallet;
             }
 
+            // Otherwise just update the new quantity value
             const updatedWallet = await Wallet.findOneAndUpdate(
-                { _id: walletID, "coins._id": coinID },
+                { _id: walletID, "coins._id": coinDocumentID },
                 { $set: { "coins.$.quantity": newCoinQuantity } },
                 { new: true }
             )
             return updatedWallet;
-
-
         },
     }
 };
