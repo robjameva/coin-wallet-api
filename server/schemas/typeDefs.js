@@ -42,14 +42,29 @@ const typeDefs = gql`
 		email: String!
 	}
 
-	input UserUpdateInput {
-		_id: ID!
-		first_name: String
-		last_name: String
-		phone_number: String
-		email: String
+	type Auth {
+		token: ID!
+		user: User
 	}
-
+	
+	type Aggregate {
+		coin: String
+		quantity: Int
+		dollarCostAveragePrice: String
+		valueUSD: String
+	}
+	
+	type WalletAggregate {
+		coins: [Aggregate]
+		walletTotal: String
+	}
+	
+	type NewUser {
+		token: ID!
+		user: User
+		wallet: Wallet
+	}
+	
 	type Query {
 		getUser(userId: ID!): User
 		getAllUsers: [User]
@@ -59,55 +74,15 @@ const typeDefs = gql`
 		getUserWallet(userId: ID!): Wallet
 		getAllWallets: [Wallet]
 		aggregateByCoin(userId: ID!, coinName: String!): Aggregate
-		aggregateByWallet(userId: ID!): [Aggregate]
+		aggregateByWallet(userId: ID!): WalletAggregate
 	}
   
 	type Mutation {
 		login(email: String!, password: String!): Auth
 		createUser(input: UserInput): NewUser
-		updateUser(input: UserUpdateInput): User
-		deleteUser(_id: ID!): User
-		deleteAllUsers: User
 		saveCoin(walletID: ID!, coinID: String!, quantity: Int!): Wallet
 		deleteCoin(walletID: ID!, coinDocumentID: String!, quantityToSubtract: Int!): Wallet
-
 	}	
-
-	type Auth {
-		token: ID!
-		user: User
-	}
-
-	type Aggregate {
-		coin: String
-		quantity: Int
-		dollarCostAveragePrice: String
-		valueUSD: String
-	}
-
-	type Group {
-		coin: String
-		quantity: Int
-		price: String
-	}
-
-	type NewUser {
-		token: ID!
-		user: User
-		wallet: Wallet
-	}
 `;
 
-// export the typeDefs
 module.exports = typeDefs;
-
-
-// type Query {
-// 	getUser(userId: ID!): User
-// 	getRestaurant(restaurantId: ID!): ResWithHours
-// 	getAllRestaurants: [Restaurant]
-// 	getRestaurantsByOwner(ownerID: ID!): [Restaurant]
-// 	getReservationsByUser(userID: ID!): [Reservation]
-// 	getReservationsByRestaurant(restaurantID: ID!): [Reservation]
-// 	getReservationsByOwner(ownerID: ID!): [Reservation]
-// }
